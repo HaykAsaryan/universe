@@ -1,0 +1,79 @@
+{% load static %}
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'profile/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'profile/css/material-design-iconic-font.min.css' %}">
+    <link rel="shortcut icon" href="{% static 'global/logo.png' %}" type="image/png" sizes="16x16">
+    <title>{{user.username}} | Universe</title>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="header__logo">
+            <a href="/home">
+                <img src="{% static 'global/logo.png' %}" alt="">
+            </a>
+            <h2>Profile</h2>
+        </div>
+        <nav class="header__nav">
+            <div class="header__nav-button" id="burger">
+                <img src="{% static 'global/arrow.png' %}" alt="">
+            </div>
+            <ul class="header__nav-list" id="list">
+                <a href="/profile/{{user.profile.username}}">
+                    <li class="header__nav-list__item">
+                        <div class="header__nav-list__item-image profile">
+                            <img src="/media{{user.profile.image}}" alt="">
+                        </div>
+                        <div class="header__nav-list__item-text">
+                            {{user.profile.username}}
+                        </div>
+                    </li>
+                </a>
+                <a href="/profile/{{user.profile.username}}/settings">
+                    <li class="header__nav-list__item">
+                        <div class="header__nav-list__item-image">
+                            <img src="{% static 'global/setting.png' %}" alt="">
+                        </div>
+                        <div class="header__nav-list__item-text">
+                            Settings
+                        </div>
+                    </li>
+                </a>
+                <a href="/logout">
+                    <li class="header__nav-list__item">
+                        <div class="header__nav-list__item-image">
+                            <img src="{% static 'global/logout.png' %}" alt="">
+                        </div>
+                        <div class="header__nav-list__item-text">
+                            Logout
+                        </div>
+                    </li>
+                </a>
+            </ul>
+        </nav>
+    </header>
+
+    <script>
+        let burger = document.getElementById("burger")
+        let list = document.getElementById("list")
+        burger.onclick = () => {
+            if (burger.classList.contains("active")) {
+                burger.classList.remove("active")
+                list.classList.remove("active")
+            } else {
+                burger.classList.add("active")
+                list.classList.add("active")
+            }
+        }
+    </script>
+
+</body>
+
+</html>

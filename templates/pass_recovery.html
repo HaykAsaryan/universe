@@ -1,0 +1,61 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Font Icon -->
+    <link rel="stylesheet" href="{% static 'recovery/css/material-design-iconic-font.min.css' %}">
+
+    <!-- Main css -->
+    <link rel="stylesheet" href="{% static 'recovery/css/style.css' %}">
+    <title>Password Recovery | Universe</title>
+</head>
+
+<body>
+
+    <section class="sign-in">
+        <div class="container">
+            <div class="signin-content">
+                <div class="signin-form">
+                    <h2 class="form-title">Password Recovery</h2>
+                    <form method="POST" class="register-form" id="login-form">
+                        {% csrf_token %}
+                        {% if username %}
+                            <div class="form-group">
+                                <input type="text" name="username" placeholder="Input Your Username" value="{{username}}" />
+                            </div>
+                        {% else %}
+                            <div class="form-group">
+                                <input type="text" name="username" placeholder="Input Your Username" />
+                            </div>
+                        {% endif %}
+                        {% if code %}
+                            <div class="form-group">
+                                <input type="text" name="code" id="code" placeholder="Input Verification Code" />
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name="new_pass" id="password" placeholder="Input New Password" />
+                            </div>
+                            {{message}}
+                            <div class="form-group form-button">
+                                <input type="submit" name="recovery" id="signin" class="form-submit" value="Send Code" />
+                            </div>
+                        {% else %}
+                            <div class="form-group form-button">
+                                <input type="submit" name="recovery" id="signin" class="form-submit" value="Send Code" />
+                            </div>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+</body>
+
+</html>
