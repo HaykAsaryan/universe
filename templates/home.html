@@ -1,0 +1,156 @@
+{% load static %}
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'home/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'home/css/material-design-iconic-font.min.css' %}">
+    <link rel="shortcut icon" href="{% static 'global/logo.png' %}" type="image/png" sizes="16x16">
+    <title>Home | Universe</title>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="header__logo">
+            <a href="/home">
+                <img src="{% static 'global/logo.png' %}" alt="">
+            </a>
+            <h2>Home</h2>
+        </div>
+        {% if exists %}
+            <nav class="header__nav" id="nav">
+                <div class="header__nav-button" id="burger">
+                    <img src="{% static 'global/arrow.png' %}" alt="">
+                </div>
+                <ul class="header__nav-list" id="list">
+                    <a href="/profile/{{user.username}}">
+                        <li class="header__nav-list__item">
+                            <div class="header__nav-list__item-image profile">
+                                <img src="/media/{{user.image}}" alt="">
+                            </div>
+                            <div class="header__nav-list__item-text">
+                                {{user.username}}
+                            </div>
+                        </li>
+                    </a>
+                    <a href="/profile/{{user.username}}/settings">
+                        <li class="header__nav-list__item">
+                            <div class="header__nav-list__item-image">
+                                <img src="{% static 'global/setting.png' %}" alt="">
+                            </div>
+                            <div class="header__nav-list__item-text">
+                                Settings
+                            </div>
+                        </li>
+                    </a>
+                    <a href="/logout">
+                        <li class="header__nav-list__item">
+                            <div class="header__nav-list__item-image">
+                                <img src="{% static 'global/logout.png' %}" alt="">
+                            </div>
+                            <div class="header__nav-list__item-text">
+                                Logout
+                            </div>
+                        </li>
+                    </a>
+                </ul>
+            </nav>
+        {% endif %}
+    </header>
+
+
+    <section class="posts">
+
+        {% for x in posts %}
+
+        <form class="post" method="POST" enctype="multipart/form-data" action="profile/{{ x.profile.username }}/like" id="postForm">
+            {% csrf_token %}
+            <input type="hidden" name="id" value="{{x.id}}">
+
+            <div class="post-info">
+                <div class="post-info__profile">
+                    <div class="post-info__profile__image">
+                        <img src="/media/{{ x.profile.image }}" alt="">
+                    </div>
+                    <div class="post-info__profile__username">
+                        <a href="/profile/{{ x.profile.username }}">
+                            {{ x.profile.username }}
+                        </a>
+                    </div>
+                </div>
+                <div class="post-info__date">
+                    {{ x.date_posted }}
+                </div>
+            </div>
+            <div class="post-body">
+                <div class="post-body__text">
+                    {{ x.text }}
+                </div>
+                {% if x.image %}
+                    <div class="post-body__image">
+                        <img src="/media/{{x.image}}" alt="">
+                    </div>
+                {% endif %}
+            </div>
+            <div class="post-control">
+                <div class="post-control__like">
+                    <input type="submit" class="like-btn" name="likes_count" value="{{x.likes_count}} 💜"
+                        readonly="readonly">
+                </div>
+            </div>
+        </form>
+
+        {% endfor %}
+
+    </section>
+
+    <script>
+        let burger = document.getElementById("burger")
+        let list = document.getElementById("list")
+        burger.onclick = () => {
+            if (burger.classList.contains("active")) {
+                burger.classList.remove("active")
+                list.classList.remove("active")
+            } else {
+                burger.classList.add("active")
+                list.classList.add("active")
+            }
+        }
+
+        function getCookie(cname) {
+            let name = cname + "=";
+            let decodedCookie = decodeURIComponent(document.cookie);
+            let ca = decodedCookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        let current_user = getCookie("current_user")
+        let user = "{{ user.profile.username }}"
+        let postForm = document.getElementById("post-form")
+        let nav = document.getElementById("nav")
+
+        console.log(current_user, user);
+
+        if (current_user != user) {
+            postForm.style.display = "none"
+            nav.style.display = "none"
+        }
+
+    </script>
+
+</body>
+
+</html>

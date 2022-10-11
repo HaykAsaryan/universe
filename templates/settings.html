@@ -29,7 +29,7 @@
                 <a href="/profile/{{user.profile.username}}">
                     <li class="header__nav-list__item">
                         <div class="header__nav-list__item-image profile">
-                            <img src="/media{{user.profile.image}}" alt="">
+                            <img src="/media/{{user.profile.image}}" alt="">
                         </div>
                         <div class="header__nav-list__item-text">
                             {{user.profile.username}}
@@ -63,7 +63,7 @@
 
 
     <section class="settings">
-        <form method="POST" class="settings__form">
+        <form method="POST" class="settings__form" enctype="multipart/form-data">
             {% csrf_token %}
             <h2 class="settings__title">Change</h2>
             <div class="settings__form-filed">
@@ -102,28 +102,6 @@
                 burger.classList.add("active")
                 list.classList.add("active")
             }
-        }
-
-
-        window.onload = function () {
-
-            var fileInput = document.getElementById('fileInput');
-            var fileDisplayArea = document.getElementById('fileDisplayArea');
-
-
-            fileInput.addEventListener('change', function (e) {
-                var file = fileInput.files[0];
-                var imageType = /image.*/;
-
-                if (file.type.match(imageType)) {
-                    var reader = new FileReader();
-
-                    reader.readAsDataURL(file);
-                } else {
-                    fileDisplayArea.innerHTML = "File not supported!"
-                }
-            });
-
         }
     </script>
 

@@ -1,0 +1,62 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(27deg, rgba(49,11,79,0.8) 0%, rgba(0,125,255,0.8) 100%);
+        }
+
+        .error {
+            width: 30rem;
+            background: rgba(212, 212, 212, 0.3);
+            backdrop-filter: blur(5px);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 0 20px 10px rgba(255, 255, 255, 0.1);
+        }
+
+        .error-title {
+            color: #ffffff;
+            font-size: 2rem;
+        }
+
+        .error-text {
+            font-size: 1.05rem;
+            color: #e9e9e9;
+            margin-top: 0.5em;
+        }
+    </style>
+    <title>Error {{status}} | Universe</title>
+</head>
+
+<body>
+
+    <div class="error">
+        <h1 class="error-title">{{status}}</h1>
+        <div class="error-text">{{text}}</div>
+    </div>
+
+</body>
+
+</html>

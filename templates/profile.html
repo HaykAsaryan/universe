@@ -10,6 +10,29 @@
     <link rel="stylesheet" href="{% static 'profile/css/material-design-iconic-font.min.css' %}">
     <link rel="shortcut icon" href="{% static 'global/logo.png' %}" type="image/png" sizes="16x16">
     <title>{{user.username}} | Universe</title>
+
+    <style>
+        .post-menu {
+            position: absolute;
+            width: 1.5rem;
+            height: 1.5rem;
+            right: 1rem;
+            top: 1rem;
+        }
+
+        .post-menu__delete {
+            width: 1.5rem;
+            height: 1.5rem;
+            cursor: pointer;
+            z-index: 5;
+            position: absolute;
+        }
+
+        .post-menu__delete img {
+            width: 100%;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -19,9 +42,9 @@
             <a href="/home">
                 <img src="{% static 'global/logo.png' %}" alt="">
             </a>
-            <h2>Profile</h2>
+            <h2>{{user.username}}</h2>
         </div>
-        <nav class="header__nav">
+        <nav class="header__nav" id="nav">
             <div class="header__nav-button" id="burger">
                 <img src="{% static 'global/arrow.png' %}" alt="">
             </div>
@@ -29,7 +52,7 @@
                 <a href="/profile/{{user.profile.username}}">
                     <li class="header__nav-list__item">
                         <div class="header__nav-list__item-image profile">
-                            <img src="/media{{user.profile.image}}" alt="">
+                            <img src="/media/{{user.profile.image}}" alt="">
                         </div>
                         <div class="header__nav-list__item-text">
                             {{user.profile.username}}
@@ -56,9 +79,86 @@
                         </div>
                     </li>
                 </a>
+                <a href="/delete/{{ user.username }}/">
+                    <li class="header__nav-list__item">
+                        <div class="header__nav-list__item-image">
+                            <img src="{% static 'global/delete.png' %}" alt="">
+                        </div>
+                        <div class="header__nav-list__item-text">
+                            Delete
+                        </div>
+                    </li>
+                </a>
             </ul>
         </nav>
     </header>
+
+    <section class="post-form" id="post-form">
+
+        <form class="post-form__form" method="POST" enctype="multipart/form-data" action="post">
+            {% csrf_token %}
+            <div class="post-form__form-field">
+                <textarea type="text" name="text" class="post-form__form-field__input"
+                    placeholder="What's new?"></textarea>
+            </div>
+            <div class="post-form__form-field">
+                <input type="button" class="post-form__form-field__input button" value="Select Image">
+                <input multiple title="Select image" type="file" accept="image/jpeg, image/jpg, image/png, image/tiff"
+                    name="image" class="post-form__form-field__input file">
+            </div>
+            <input type="submit" value="Publish" class="form-submit">
+        </form>
+
+    </section>
+
+    <section class="posts">
+
+        {% for x in post %}
+
+        <form class="post" method="POST" enctype="multipart/form-data" action="like" id="postForm">
+            {% csrf_token %}
+            <div class="post-menu">
+                <a class="post-menu__delete" href="/post/{{x.id}}/delete" title="Delete">
+                    <img src="{% static 'global/delete.png' %}" alt="">
+                </a>
+            </div>
+            <input type="hidden" name="id" value="{{x.id}}">
+            <div class="post-info">
+                <div class="post-info__profile">
+                    <div class="post-info__profile__image">
+                        <img src="/media/{{ x.profile.image }}" alt="">
+                    </div>
+                    <div class="post-info__profile__username">
+                        <a href="/profile/{{ x.profile.username }}">
+                            {{ x.profile.username }}
+                        </a>
+                    </div>
+                </div>
+                <div class="post-info__date">
+                    {{ x.date_posted }}
+                </div>
+            </div>
+            <div class="post-body">
+                <div class="post-body__text">
+                    {{ x.text }}
+                </div>
+                {% if x.image %}
+                <div class="post-body__image">
+                    <img src="/media/{{x.image}}" alt="">
+                </div>
+                {% endif %}
+            </div>
+            <div class="post-control">
+                <div class="post-control__like">
+                    <input type="submit" class="like-btn" name="likes_count" value="{{x.likes_count}} 💜"
+                        readonly="readonly">
+                </div>
+            </div>
+        </form>
+
+        {% endfor %}
+
+    </section>
 
     <script>
         let burger = document.getElementById("burger")
@@ -72,6 +172,39 @@
                 list.classList.add("active")
             }
         }
+
+        function getCookie(cname) {
+            let name = cname + "=";
+            let decodedCookie = decodeURIComponent(document.cookie);
+            let ca = decodedCookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        let current_user = getCookie("current_user")
+        let user = "{{ user.profile.username }}"
+        let postForm = document.getElementById("post-form")
+        let nav = document.getElementById("nav")
+        let post_menu = document.getElementsByClassName("post-menu")
+
+        console.log(current_user, user);
+
+        if (current_user != user) {
+            postForm.style.display = "none"
+            nav.style.display = "none"
+            for (let i = 0; i < post_menu.length; i++) {
+                post_menu[i].style.display = "none"
+            }
+        }
+
     </script>
 
 </body>

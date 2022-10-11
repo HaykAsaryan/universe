@@ -1,5 +1,6 @@
 import random
-from .models import Profile
+from urllib import response
+from .models import Profile, Post
 from .forms import CreateRegistrationForm
 from .functions import sendMail, createCode
 from django.shortcuts import render, redirect
@@ -48,10 +49,10 @@ def authorizationPage(request):
         password = request.POST.get('password')
         user = authenticate(request, username = username, password = password)
         if user is not None:
-
-
             login(request, user)
-            return redirect(f"/profile/{username}")
+            response = redirect(f"/profile/{username}")
+            response.set_cookie("current_user", username)
+            return response
         else:
             messages.info(request, "Username or Password is incorrect.")
 
@@ -60,10 +61,13 @@ def authorizationPage(request):
     return render(request, 'authorization.html', context)
     
 
-@login_required
 def profilePage(request, username):
     user = User.objects.get(username = username)
-    context = {"user": user}
+    post = Post.objects.filter(username = username)
+    context = {
+        "post": post,
+        "user": user
+    }
     if request.method == "POST":
         if request.user:
             return render(request, "profile.html", request)
@@ -75,8 +79,9 @@ def profilePage(request, username):
 @login_required
 def logoutPage(request):
     logout(request)
-    return redirect("/authorization")
-
+    response = redirect("/authorization")
+    response.delete_cookie("current_user")
+    return response
 
 def recoveryPage(request):
 
@@ -115,13 +120,13 @@ def settingsPage(request, username):
         last_name = request.POST.get("last_name")
         new_username = request.POST.get("username")
         email = request.POST.get("email")
-        image = request.POST.get("image")
+        posts = request.POST.get("posts")
+        image = request.FILES.get("image")
         old_user = Profile.objects.get(username = username)
         first_name = old_user.first_name if first_name == "" else first_name
         last_name = old_user.last_name if last_name == "" else last_name
         email = old_user.email if email == "" else email
-        image = old_user.image if image == "" else f"/profile_pics/default/{image}"
-
+        image = image
 
         if new_username != "":
             new = User.objects.filter(username = new_username)
@@ -139,6 +144,8 @@ def settingsPage(request, username):
                 profile.first_name = first_name
                 profile.last_name = last_name
                 profile.email = email
+                profile.posts = posts
+
                 profile.image = image
 
                 user.save()
@@ -152,11 +159,11 @@ def settingsPage(request, username):
             user.last_name = last_name
             user.email = email
 
-            
             profile.first_name = first_name
             profile.last_name = last_name
             profile.email = email
             profile.image = image
+            profile.posts = posts
             user.save()
             profile.save()
 
@@ -166,7 +173,97 @@ def settingsPage(request, username):
             sendMail("Data Changing", f"Hello {username}, Your data was successfuly changed.", email)
             return redirect("/authorization")
 
-    
     user = User.objects.get(username = username)
     context = {"user": user}
     return render(request, "settings.html", context)
+
+@login_required
+def post(request, username):
+    if request.method == "POST":
+        image = request.FILES.get("image")
+        text = request.POST.get("text")
+        profile = Profile.objects.get(username=username)
+        profile.posts = profile.posts + 1
+        profile.save()
+        Post.objects.create(
+            profile_id=profile.id,
+            image = image,
+            text = text,
+            username = username
+        )
+        return redirect(f"/profile/{username}")
+
+@login_required
+def like(request, username):
+    if request.method == "POST":
+        id = request.POST.get("id")
+        likes_count = request.POST.get("likes_count").replace("💜", "")
+        likes_count = likes_count.replace(" ", "")
+        post = Post.objects.get(id = id)
+        post.likes_count = int(likes_count) + 1
+        post.save()
+        if request.COOKIES.get("current_user"):
+            return redirect(f"/profile/{username}")
+        else:
+            return redirect(f"/authorization")
+
+def homePage(request):
+    posts = list(Post.objects.all())
+    random.shuffle(posts)
+    context = {
+        "posts": posts
+    }
+    if request.COOKIES.get("current_user"):
+        current_user = request.COOKIES.get("current_user")
+        user = Profile.objects.get(username = current_user)
+        context["user"] = user
+        context["exists"] = True
+    return render(request, "home.html", context)
+
+@login_required
+def deletePage(request, username):
+    user = User.objects.get(username = username)
+    user.delete()
+    return redirect(request, "delete.html")
+
+@login_required
+def deletePost(request, id):
+    post = Post.objects.get(id = id)
+    user = post.username
+    if post:
+        post.delete()
+        return redirect(f"/profile/{user}")
+    return render(request, "delete.html")
+
+
+def custom_page_not_found_view(request, exception):
+    response = render(request, "error.html", {
+        "status": "404 - Not Found",
+        "text": "Server cannot find the requested resource. Please, check site url."
+    })
+    response.status_code = 404
+    return response
+
+def custom_error_view(request):
+    response = render(request, "error.html", {
+        "status": "500 - Internal Server Error",
+        "text": "Server encountered an unexpected condition that prevented it from fulfilling the request. Please, try again."
+    })
+    response.status_code = 500
+    return response
+
+def custom_permission_denied_view(request, exception):
+    response = render(request, "error.html", {
+        "status": "403 - Forbidden",
+        "text": "Server understands the request, but refuzed to authorize it. Please, try again (re-authenticating makes no difference)."
+    })
+    response.status_code = 403
+    return response
+
+def custom_bad_request_view(request, exception):
+    response = render(request, "error.html", {
+        "status": "400 - Bad Request",
+        "text": "Bad request. Please, try modificate the request and try again."
+    })
+    response.status_code = 400
+    return response

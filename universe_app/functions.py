@@ -5,8 +5,8 @@ from email.message import EmailMessage
 
 
 def sendMail(Subject, Text, To):
-    email_sender = ""
-    email_password = ""
+    email_sender = "universe.social.network@gmail.com"
+    email_password = "email password" 
     email_receiver = To
 
     subject = Subject
