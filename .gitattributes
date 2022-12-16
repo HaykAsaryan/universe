@@ -1,2 +1,2 @@
 *.css linguist-detectable=false
-*.sqlite3 linguist-detectable=true
+*.py linguist-detectable=true
